@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter_taller3/MapSample.dart';
+import 'package:flutter_taller3/map.dart';
 import 'package:flutter_taller3/register.dart';
 import 'package:flutter_taller3/home.dart';
 
@@ -43,7 +44,7 @@ class LoginPage extends StatelessWidget {
               try{
                 FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password).then((value){
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Login Successful")));
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomePage()));
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>MapPage()));
                 });
               }catch(error){
                 print(error);
