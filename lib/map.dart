@@ -30,7 +30,9 @@ class _MapPageState extends State<MapPage> {
     super.initState();
     getLocationUpdate().then(
       (_) => { //se usa (_) ya que la funcion se completa
-        getPolyLinePoints().then(coordinates),
+        getPolylinePoints().then((coordinates) => {
+          print(coordinates),
+        }),
       },
     ); 
   }
@@ -48,17 +50,18 @@ class _MapPageState extends State<MapPage> {
           Marker(
             markerId: MarkerId("_currentLocation"),
             icon: BitmapDescriptor.defaultMarker, 
-            position: _currentP!),
+            position: _currentP!,),
           Marker(
             markerId: MarkerId("_sourceLocation"),
             icon: BitmapDescriptor.defaultMarker, 
             position: _pGooglePlex),
-          Marker(markerId: MarkerId("_destinationLocation"), 
-          icon: BitmapDescriptor.defaultMarker, 
-          position: _pApplePark),
+          Marker(
+            markerId: MarkerId("_destinationLocation"), 
+            icon: BitmapDescriptor.defaultMarker, 
+            position: _pApplePark)
 
         },
-        polylines: Set<Polyline>.of(polylines.values)
+        polylines: Set<Polyline>.of(polylines.values),
       ),
     );
   }
@@ -68,7 +71,7 @@ class _MapPageState extends State<MapPage> {
     final GoogleMapController controller = await _mapController.future;
     CameraPosition _newCameraPosition = CameraPosition(
       target: pos,
-      zoom: 13
+      zoom: 13,
       );
       await controller.animateCamera(CameraUpdate.newCameraPosition(_newCameraPosition),
       );
@@ -94,10 +97,10 @@ class _MapPageState extends State<MapPage> {
       }
     }
   //cuando permiso concedido
-    _locationController.onLocationChanged.listen((LocationData _currentLocation){
-      if(_currentLocation.latitude != null && _currentLocation.longitude != null){
+    _locationController.onLocationChanged.listen((LocationData currentLocation){
+      if(currentLocation.latitude != null && currentLocation.longitude != null){
         setState(() { //reconstruir el mapa y las variables dentro de el
-          _currentP = LatLng(_currentLocation.latitude!, _currentLocation.longitude!); // se usa ! ya que se sabe que el valor no es nulo
+          _currentP = LatLng(currentLocation.latitude!, currentLocation.longitude!); // se usa ! ya que se sabe que el valor no es nulo
           _cameraToPosition(_currentP!);
         });
 
@@ -105,18 +108,19 @@ class _MapPageState extends State<MapPage> {
     });
   }
   //dibujar la ruta
-  Future<List<LatLng>> getPolyLinePoints() async {
+  Future<List<LatLng>> getPolylinePoints() async {
     List<LatLng> polylineCoordinates = [];
     PolylinePoints polylinePoints = PolylinePoints();
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      googleApiKey: GOOGLE_MAPS_API_KEY,
       request: PolylineRequest(
         origin:  PointLatLng(_pGooglePlex.latitude, _pGooglePlex.longitude), 
         destination: PointLatLng(_pApplePark.latitude, _pApplePark.longitude), 
         mode: TravelMode.walking,
         ),
     /*polylinePoints.getRouteBetweenCoordinates(
-      googleApiKey: GOOGLE_MAPS_API_KEY,
-      origin: PointLatLng(_pGooglePlex.latitude, _pGooglePlex.longitude),
+      GOOGLE_MAPS_API_KEY,
+      PointLatLng(_pGooglePlex.latitude, _pGooglePlex.longitude),
       PointLatLng(_pApplePark.latitude, _pApplePark.longitude), 
       travelMode: TravelMode.walking, 
       request: null,
@@ -134,7 +138,11 @@ class _MapPageState extends State<MapPage> {
 
   void generatePolyLineFromPoints(List<LatLng> polylineCoordinates) async {
     PolylineId id = PolylineId("poly");
-    Polyline polyline = Polyline(polylineId: id, color: Colors.black, points: polylineCoordinates, width:8);
+    Polyline polyline = Polyline(
+      polylineId: id, 
+      color: Colors.black, 
+      points: polylineCoordinates, 
+      width:8);
     setState(() {
       polylines[id] = polyline;
     });
